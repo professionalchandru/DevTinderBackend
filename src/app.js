@@ -84,6 +84,33 @@ app.get("/user/list", userAuthMiddleware, (req, res, next) => {
 //   res.send("user");
 // });
 
+// ** ERROR HANDLING **
+// Always use a try catch block to handle the error and send appropirate error response.
+// we can use the wild card error handling as fallback. that time err is the first param. other params will be followed that
+
+// app.get("/a", (req,res) => {
+//   throw new Error("abcd");
+//   res.send("hi"); // this will expose the random things in client. so always use the try and catch block to avoid it.
+// });
+
+app.get("/a", (req, res) => {
+  try {
+    throw new Error("abcd");
+    res.send("hi"); // this will expose the random things in client. so always use the try and catch block to avoid it.
+  } catch (err) {
+    // Log the error
+    res.status(500).send("Something went wrong");
+  }
+});
+
+app.use("/", (err, req, res, next) => {
+  // Here you notice for 4 params, i always use the err as first param. this is a wild card error handleing.
+  if (err) {
+    // Log the error
+    res.status(500).send("Something went wrong");
+  }
+});
+
 app.listen(7777, () => {
   console.log("App is listening on port 7777");
 });
