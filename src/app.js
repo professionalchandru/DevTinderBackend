@@ -17,22 +17,33 @@ const app = express();
 //   next(); // this will also throw cannot get /user error in postman since there is no route handler after this
 // });
 
-app.use(
-  "/user",
-  (req, res, next) => {
-    console.log("1");
-    next();
-  },
-  [
-    (req, res, next) => {
-      console.log("2");
-      next();
-    },
-  ],
-  (req, res, next) => {
-    res.send("hi user"); // No error since there is perfect res.send is there
-  },
-);
+// app.use(
+//   "/user",
+//   (req, res, next) => {
+//     console.log("1");
+//     next();
+//   },
+//   [
+//     (req, res, next) => {
+//       console.log("2");
+//       next();
+//     },
+//   ],
+//   (req, res, next) => {
+//     res.send("hi user"); // No error since there is perfect res.send is there
+//   },
+// );
+
+app.get("/user", (req, res, next) => {
+  console.log("first");
+  res.send("user");
+  next();
+});
+
+app.get("/user", (req, res, next) => {
+  console.log("second");
+  res.send("user");
+});
 
 app.listen(7777, () => {
   console.log("App is listening on port 7777");
