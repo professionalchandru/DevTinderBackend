@@ -1,10 +1,45 @@
 const express = require("express");
+const {
+  adminAuthMiddleware,
+  userAuthMiddleware,
+} = require("./middlewares/auth");
 
 const app = express();
 
 // ** MIDDLEWARE **
 // middle where means the functions which will be called/executed from the route is reached till the res send to the client.
 // the function which is sending response back is known as request handler. other functions just do some work and using next() to forward is known as middlewares
+
+app.use("/admin", adminAuthMiddleware); //here all the request first encounter this middleware. if it authourized then only it will allow to the next requesthandler.
+// With this app.use middleware we can able to reuse this check for all the methods like get, post, put....
+
+app.get("/admin/getAlldata", (req, res, next) => {
+  res.send([
+    {
+      name: "chandru",
+    },
+    {
+      name: "mani",
+    },
+  ]);
+});
+
+app.get("/user/login", (req, res, next) => {
+  //handle login flow.
+  // it is not requried any authcheck
+});
+
+app.get("/user/list", userAuthMiddleware, (req, res, next) => {
+  // here just we used the approach of multiple reqest handler in the same place.
+  res.send([
+    {
+      name: "chandru1",
+    },
+    {
+      name: "mani1",
+    },
+  ]);
+});
 
 // app.use(
 //   "/user",
