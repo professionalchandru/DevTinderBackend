@@ -2,6 +2,10 @@ const express = require("express");
 
 const app = express();
 
+// ** MIDDLEWARE **
+// middle where means the functions which will be called/executed from the route is reached till the res send to the client.
+// the function which is sending response back is known as request handler. other functions just do some work and using next() to forward is known as middlewares
+
 // app.use(
 //   "/user",
 //   (req, res, next) => {
@@ -34,16 +38,16 @@ const app = express();
 //   },
 // );
 
-app.get("/user", (req, res, next) => {
-  console.log("first");
-  res.send("user");
-  next();
-});
+// app.get("/user", (req, res, next) => {
+//   console.log("first");
+//   res.send("user");
+//   next();
+// });
 
-app.get("/user", (req, res, next) => {
-  console.log("second");
-  res.send("user");
-});
+// app.get("/user", (req, res, next) => {
+//   console.log("second");
+//   res.send("user");
+// });
 
 app.listen(7777, () => {
   console.log("App is listening on port 7777");
