@@ -46,10 +46,24 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
   const data = req.body;
   try {
+    const allowedFields = ["gender", "age", "skills", "about", "photoUrl"];
+
+    const isFieldsAllowed = Object.keys(req.body).every((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!isFieldsAllowed) {
+      throw new Error("Update not allowed");
+    }
+
+    if (data?.skills?.length > 10) {
+      throw new Error("Skills must be less than 10");
+    }
+
     const updatedUser = await User.findByIdAndUpdate({ _id: userId }, data, {
       runValidators: true,
     }); // here we are directly passing the data with the userId.
@@ -59,7 +73,7 @@ app.patch("/user", async (req, res) => {
       : res.status(400).send("Bad request");
   } catch (err) {
     console.log("Error", err);
-    res.status(500).send(err.message);
+    res.status(500).send("Update failed: " + err.message);
   }
 });
 
@@ -67,6 +81,26 @@ app.post("/signup", async (req, res) => {
   const user = new User(req.body);
 
   try {
+    const allowedFields = [
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "gender",
+      "age",
+      "skills",
+      "about",
+      "photoUrl",
+    ];
+
+    const isFieldsAllowed = Object.keys(req.body).every((key) =>
+      allowedFields.includes(key),
+    );
+
+    if (!isFieldsAllowed) {
+      throw new Error("Update not allowed");
+    }
+
     await user.save();
     res.send("User Saved Successfully");
   } catch (err) {
