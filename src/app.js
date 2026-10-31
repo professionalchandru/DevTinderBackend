@@ -9,6 +9,7 @@ const { validateSignup, validateLogin } = require("./utils/validate");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 
@@ -78,23 +79,19 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.post("/sendConnectionRequest", userAuth, (req, res) => {
   try {
-    // Validate token
-    const cookies = req.cookies;
-    const { token } = cookies;
+    const user = req.user;
+    res.send(`Connection request sent by ${user.firstName}`);
+  } catch (err) {
+    console.log("error", err.message);
+    res.status(400).send(`Error Login: ${err.message}`);
+  }
+});
 
-    if (!token) {
-      throw new Error("Unauthorized!");
-    }
-
-    const decodeMessage = await jwt.verify(token, "Dev@Tinder@123");
-
-    if (!decodeMessage) {
-      throw new Error("Unauthorized! token not valid");
-    }
-
-    const user = await User.findById(decodeMessage._id);
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
 
     res.send(user);
   } catch (err) {
