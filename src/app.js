@@ -50,14 +50,16 @@ app.patch("/user", async (req, res) => {
   const userId = req.body.userId;
   const data = req.body;
   try {
-    const updatedUser = await User.findByIdAndUpdate({ _id: userId }, data); // here we are directly passing the data with the userId.
+    const updatedUser = await User.findByIdAndUpdate({ _id: userId }, data, {
+      runValidators: true,
+    }); // here we are directly passing the data with the userId.
     //  mongoose will not add/edit the data which is not in schema.It will automatically drop that.
     updatedUser
       ? res.send("User updated successfully")
       : res.status(400).send("Bad request");
   } catch (err) {
     console.log("Error", err);
-    res.status(500).send("something went wrong...");
+    res.status(500).send(err.message);
   }
 });
 
