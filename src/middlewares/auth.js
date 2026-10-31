@@ -4,7 +4,7 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
-    if (!token) {
+    if (!token || token === null) {
       throw new Error("Invalild token");
     }
 
@@ -17,6 +17,7 @@ const userAuth = async (req, res, next) => {
       throw new Error("Unauthouized user");
     }
     req.user = user;
+
     next();
   } catch (err) {
     console.log("Error", err);
