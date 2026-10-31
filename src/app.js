@@ -5,10 +5,71 @@ const express = require("express");
 
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
+const { validateSignup, validateLogin } = require("./utils/validate");
+const bcrypt = require("bcrypt");
 
 const app = express();
 
 app.use(express.json());
+
+app.post("/signup", async (req, res) => {
+  try {
+    //validate the fields
+    validateSignup(req);
+
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      gender,
+      about,
+      photoUrl,
+      skills,
+    } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      gender,
+      about,
+      photoUrl,
+      skills,
+    });
+
+    await user.save();
+    res.send("User Saved Successfully");
+  } catch (err) {
+    console.log("error", err.message);
+    res.status(400).send(`Error saving the user: ${err.message}`);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    validateLogin(req);
+
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+    const comparePass = await bcrypt.compare(password, user.password);
+    if (comparePass) {
+      res.send("Login successfull...");
+    } else {
+      throw new Error("Invalid Credentials");
+    }
+  } catch (err) {
+    console.log("error", err.message);
+    res.status(400).send(`Error Login: ${err.message}`);
+  }
+});
 
 app.get("/feed", async (req, res) => {
   try {
@@ -74,38 +135,6 @@ app.patch("/user/:userId", async (req, res) => {
   } catch (err) {
     console.log("Error", err);
     res.status(500).send("Update failed: " + err.message);
-  }
-});
-
-app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-
-  try {
-    const allowedFields = [
-      "firstName",
-      "lastName",
-      "email",
-      "password",
-      "gender",
-      "age",
-      "skills",
-      "about",
-      "photoUrl",
-    ];
-
-    const isFieldsAllowed = Object.keys(req.body).every((key) =>
-      allowedFields.includes(key),
-    );
-
-    if (!isFieldsAllowed) {
-      throw new Error("Update not allowed");
-    }
-
-    await user.save();
-    res.send("User Saved Successfully");
-  } catch (err) {
-    console.log("error", err.message);
-    res.status(400).send(`Error saving the user: ${err.message}`);
   }
 });
 
