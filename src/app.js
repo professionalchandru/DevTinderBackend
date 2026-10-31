@@ -7,10 +7,13 @@ const { connectDB } = require("./config/database");
 const User = require("./models/user");
 const { validateSignup, validateLogin } = require("./utils/validate");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -59,8 +62,12 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid Credentials");
     }
-    const comparePass = await bcrypt.compare(password, user.password);
-    if (comparePass) {
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (isValidPassword) {
+      // token generation
+      const token = await jwt.sign({ _id: user._id }, "Dev@Tinder@123");
+
+      res.cookie("token", token);
       res.send("Login successfull...");
     } else {
       throw new Error("Invalid Credentials");
@@ -68,6 +75,31 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.log("error", err.message);
     res.status(400).send(`Error Login: ${err.message}`);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    // Validate token
+    const cookies = req.cookies;
+    const { token } = cookies;
+
+    if (!token) {
+      throw new Error("Unauthorized!");
+    }
+
+    const decodeMessage = await jwt.verify(token, "Dev@Tinder@123");
+
+    if (!decodeMessage) {
+      throw new Error("Unauthorized! token not valid");
+    }
+
+    const user = await User.findById(decodeMessage._id);
+
+    res.send(user);
+  } catch (err) {
+    console.log("Error", err.message);
+    res.status(500).send("something went wrong...");
   }
 });
 
