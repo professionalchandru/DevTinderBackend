@@ -19,6 +19,7 @@ authRouter.post("/signup", async (req, res) => {
       about,
       photoUrl,
       skills,
+      age,
     } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -32,6 +33,7 @@ authRouter.post("/signup", async (req, res) => {
       about,
       photoUrl,
       skills,
+      age,
     });
 
     await user.save();

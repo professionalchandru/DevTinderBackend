@@ -25,7 +25,7 @@ requestRouter.post(
         return res.status(404).json({ message: `User not found` });
       }
 
-      const isRequestExist = await ConnectionRequest.findOne({
+      const isRequestExist = await ConnectionRequestModel.findOne({
         $or: [
           { fromUserId, toUserId },
           { fromUserId: toUserId, toUserId: fromUserId },
@@ -36,7 +36,7 @@ requestRouter.post(
         return res.status(400).json({ message: `Request Already Exisist.` });
       }
 
-      const connectionRequest = await new ConnectionRequest({
+      const connectionRequest = await new ConnectionRequestModel({
         fromUserId,
         toUserId,
         status,
