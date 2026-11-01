@@ -1,10 +1,7 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
-const User = require("../models/user");
-const {
-  validateUserEdit,
-  validateChangePassword,
-} = require("../utils/validate");
+const UserModel = require("../models/user");
+const { validateUserEdit } = require("../utils/validate");
 
 const profileRouter = express.Router();
 
@@ -21,7 +18,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 
 profileRouter.get("/feed", async (req, res) => {
   try {
-    const users = await User.find({});
+    const users = await UserModel.find({});
     res.status(200).send(users);
   } catch (err) {
     console.log("Error", err.message);
@@ -37,7 +34,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 
     Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
 
-    const updatedUserDeatils = new User(loggedInUser);
+    const updatedUserDeatils = new UserModel(loggedInUser);
     await updatedUserDeatils.save();
 
     res.json({
@@ -60,7 +57,7 @@ profileRouter.patch("/profile/password", userAuth, async (req, res) => {
       throw new Error("Password not match");
     }
     const hashedPassword = await user.hashPassword(req.body.newPassword);
-    const updatedUserDeatils = await User.findOneAndUpdate(
+    const updatedUserDeatils = await UserModel.findOneAndUpdate(
       { _id: user._id },
       {
         password: hashedPassword,

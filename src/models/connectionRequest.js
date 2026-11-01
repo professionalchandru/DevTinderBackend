@@ -13,7 +13,7 @@ const connectionRequestSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ["ignored", "intrested", "pending", "rejected"],
+        values: ["ignored", "intrested", "accepted", "rejected"],
         message: `{VALUE} is not valid status`,
       },
     },
@@ -25,19 +25,20 @@ const connectionRequestSchema = new mongoose.Schema(
 
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
 
-connectionRequestSchema.pre("save", async function (next) {
-  const connectionRequest = this;
+// TODO : it is not working. need to debug. the if condition directly added in api. search if condition to know the place
+// connectionRequestSchema.pre("save", function (next) {
+//   const connectionRequest = this;
 
-  if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
-    throw new Error("Cannot send connection request to yourself");
-  }
+//   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
+//     throw new Error("Cannot send connection request to yourself");
+//   }
 
-  next();
-});
+//   next();
+// });
 
-const ConnectionRequest = mongoose.model(
+const ConnectionRequestModel = mongoose.model(
   "connectionRequest",
   connectionRequestSchema,
 );
 
-module.exports = ConnectionRequest;
+module.exports = ConnectionRequestModel;
