@@ -1,6 +1,7 @@
 const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequestModel = require("../models/connectionRequest");
+const UserModel = require("../models/user");
 
 const userRouter = express.Router();
 
@@ -55,6 +56,43 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     });
   } catch (err) {
     console.log("Error on path: /user/requests/received - " + err.message);
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
+
+userRouter.get("/user/feed", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+
+    const connectionRequestList = await ConnectionRequestModel.find({
+      $or: [
+        {
+          fromUserId: loggedInUser._id,
+        },
+        {
+          toUserId: loggedInUser._id,
+        },
+      ],
+    }).select("fromUserId toUserId");
+
+    const hideUsersFromFeed = new Set();
+    connectionRequestList.forEach((user) => {
+      hideUsersFromFeed.add(user.fromUserId.toString());
+      hideUsersFromFeed.add(user.toUserId.toString());
+    });
+
+    const feedData = await UserModel.find({
+      $and: [
+        { _id: { $nin: Array.from(hideUsersFromFeed) } },
+        { _id: { $ne: loggedInUser._id } },
+      ],
+    }).select(POPULATE_SAFE_DATA);
+
+    res.json({ data: feedData });
+  } catch (err) {
+    console.log("Error on path: /feed - " + err.message);
     res.status(400).json({
       message: err.message,
     });
