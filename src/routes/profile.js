@@ -16,16 +16,6 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.get("/feed", async (req, res) => {
-  try {
-    const users = await UserModel.find({});
-    res.status(200).send(users);
-  } catch (err) {
-    console.log("Error", err.message);
-    res.status(500).send("something went wrong...");
-  }
-});
-
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
     validateUserEdit(req);

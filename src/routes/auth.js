@@ -36,8 +36,16 @@ authRouter.post("/signup", async (req, res) => {
       age,
     });
 
-    await user.save();
-    res.send("User Saved Successfully");
+    const savedUser = await user.save();
+
+    // token generation
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
+
+    res.json({ message: "User Saved Successfully", data: savedUser });
   } catch (err) {
     console.log("error", err.message);
     res.status(400).send(`Error saving the user: ${err.message}`);
@@ -62,7 +70,7 @@ authRouter.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      res.send("Login successfull...");
+      res.send(user);
     } else {
       throw new Error("Invalid Credentials");
     }
