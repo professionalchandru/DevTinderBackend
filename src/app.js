@@ -1,3 +1,4 @@
+require("dotenv").config();
 const dns = require("dns/promises");
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -5,8 +6,8 @@ const express = require("express");
 
 const { connectDB } = require("./config/database");
 
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
@@ -29,8 +30,8 @@ app.use("/", authRouter, profileRouter, requestRouter, userRouter);
 connectDB()
   .then(() => {
     console.log("Database connection established...");
-    app.listen(7777, () => {
-      console.log("App is listening on port 7777");
+    app.listen(process.env.PORT || 7777, () => {
+      console.log("App is listening on port : ", process.env.PORT || 7777);
     });
   })
   .catch((err) => {

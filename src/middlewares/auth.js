@@ -8,7 +8,7 @@ const userAuth = async (req, res, next) => {
       return res.status(401).send("Unauthrized! Please login to continue.");
     }
 
-    const decodeMessage = await jwt.verify(token, "Dev@Tinder@123");
+    const decodeMessage = await jwt.verify(token, process.env.JWT_SECRET);
 
     const { _id } = decodeMessage;
 
