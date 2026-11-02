@@ -13,7 +13,7 @@ requestRouter.post(
       const { status, toUserId } = req.params;
       const fromUserId = req.user._id;
 
-      const allowedStatus = ["ignored", "intrested"];
+      const allowedStatus = ["ignored", "interested"];
 
       if (!allowedStatus.includes(status)) {
         return res.status(400).json({ message: `Invalid status` });
@@ -76,7 +76,7 @@ requestRouter.post(
 
       const connectionRequest = await ConnectionRequestModel.findOne({
         _id: requestId,
-        status: "intrested",
+        status: "interested",
         toUserId: loggedInUser._id,
       });
 
