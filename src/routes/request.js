@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
+const sendEmail = require("../utils/sendEmail");
 
 const requestRouter = express.Router();
 
@@ -47,6 +48,16 @@ requestRouter.post(
       }
 
       const data = await connectionRequest.save();
+
+      const emailRes = await sendEmail.run(
+        req.user.email,
+        toUser.email,
+        `
+        ${req.user.firstName} is sent request to ${toUser.firstName}
+        `,
+        "New connection requst from dev tinder",
+      );
+      console.log("emailRes", emailRes);
 
       res.json({
         message: `${req.user.firstName} is sent request to ${toUser.firstName}`,
